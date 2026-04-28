@@ -1,0 +1,122 @@
+{
+  "088004021474": {
+    "name": "Buffalo Trace Bourbon",
+    "brand": "Buffalo Trace",
+    "category": "whiskey",
+    "subtype": "Bourbon",
+    "proof": 90,
+    "distillery": "Buffalo Trace Distillery",
+    "region": "Kentucky, USA",
+    "allocated": false
+  },
+  "088004021627": {
+    "name": "Eagle Rare 10 Year",
+    "brand": "Eagle Rare",
+    "category": "whiskey",
+    "subtype": "Bourbon",
+    "proof": 90,
+    "age_years": 10,
+    "distillery": "Buffalo Trace Distillery",
+    "region": "Kentucky, USA",
+    "allocated": true
+  },
+  "088004021566": {
+    "name": "Blanton's Original Single Barrel",
+    "brand": "Blanton's",
+    "category": "whiskey",
+    "subtype": "Bourbon",
+    "proof": 93,
+    "distillery": "Buffalo Trace Distillery",
+    "region": "Kentucky, USA",
+    "allocated": true
+  },
+  "080686822202": {
+    "name": "Maker's Mark",
+    "brand": "Maker's Mark",
+    "category": "whiskey",
+    "subtype": "Bourbon",
+    "proof": 90,
+    "distillery": "Maker's Mark Distillery",
+    "region": "Kentucky, USA",
+    "allocated": false
+  },
+  "082000725770": {
+    "name": "Wild Turkey 101",
+    "brand": "Wild Turkey",
+    "category": "whiskey",
+    "subtype": "Bourbon",
+    "proof": 101,
+    "distillery": "Wild Turkey Distillery",
+    "region": "Kentucky, USA",
+    "allocated": false
+  },
+  "087000004283": {
+    "name": "Jack Daniel's Old No. 7",
+    "brand": "Jack Daniel's",
+    "category": "whiskey",
+    "subtype": "Tennessee",
+    "proof": 80,
+    "distillery": "Jack Daniel Distillery",
+    "region": "Tennessee, USA",
+    "allocated": false
+  },
+  "5010494956000": {
+    "name": "Lagavulin 16 Year",
+    "brand": "Lagavulin",
+    "category": "whiskey",
+    "subtype": "Single Malt Scotch",
+    "proof": 86,
+    "age_years": 16,
+    "distillery": "Lagavulin",
+    "region": "Islay, Scotland",
+    "allocated": false
+  },
+  "088076180383": {
+    "name": "Macallan 12 Sherry Oak",
+    "brand": "The Macallan",
+    "category": "whiskey",
+    "subtype": "Single Malt Scotch",
+    "proof": 86,
+    "age_years": 12,
+    "distillery": "The Macallan",
+    "region": "Speyside, Scotland",
+    "allocated": false
+  },
+  "087000222632": {
+    "name": "Don Julio 1942",
+    "brand": "Don Julio",
+    "category": "tequila",
+    "subtype": "Añejo",
+    "proof": 80,
+    "distillery": "Tequila Don Julio",
+    "region": "Jalisco, Mexico",
+    "allocated": true
+  },
+  "811538013014": {
+    "name": "Clase Azul Reposado",
+    "brand": "Clase Azul",
+    "category": "tequila",
+    "subtype": "Reposado",
+    "proof": 80,
+    "region": "Jalisco, Mexico",
+    "allocated": true
+  },
+  "082000776529": {
+    "name": "Hendrick's Gin",
+    "brand": "Hendrick's",
+    "category": "gin",
+    "subtype": "Contemporary",
+    "proof": 88,
+    "region": "Scotland",
+    "allocated": false
+  },
+  "088076181472": {
+    "name": "Tanqueray London Dry",
+    "brand": "Tanqueray",
+    "category": "gin",
+    "subtype": "London Dry",
+    "proof": 94.6,
+    "region": "England",
+    "allocated": false
+  }
+}
