@@ -7,19 +7,25 @@
     color-scheme: dark;
   }
 
-  html {
+  html,
+  body {
     background: #000;
+    height: 100%;
+    overflow: hidden;
   }
 
   body {
-    background: #000;
-    min-height: 100vh;
     -webkit-tap-highlight-color: transparent;
-    -webkit-overflow-scrolling: touch;
   }
 
+  /* The app's scroll container. Putting overflow here (instead of on body)
+     is the most reliable pattern for iOS PWAs in standalone mode. */
   #root {
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   button {
