@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Keyboard } from 'lucide-react';
-import { useScanner } from '../hooks/useScanner';
+import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
 import { useHaptics } from '../hooks/useHaptics';
 
 export function Scanner({ open, onClose, onCode }) {
   const containerRef = useRef(null);
   const [manual, setManual] = useState(false);
   const [code, setCode] = useState('');
+  const [lastSeen, setLastSeen] = useState(null);
   const { tap } = useHaptics();
 
-  useScanner({
+  const { running, engine, error } = useBarcodeScanner({
     targetRef: containerRef,
     enabled: open && !manual,
     onDetected: (c) => {
       tap('success');
+      setLastSeen(c);
       onCode?.(c);
     },
   });
@@ -23,6 +25,7 @@ export function Scanner({ open, onClose, onCode }) {
     if (!open) {
       setManual(false);
       setCode('');
+      setLastSeen(null);
     }
   }, [open]);
 
@@ -30,17 +33,19 @@ export function Scanner({ open, onClose, onCode }) {
 
   return (
     <div className="fixed inset-0 z-[60] bg-black">
-      <div ref={containerRef} className="absolute inset-0 [&_video]:h-full [&_video]:w-full [&_video]:object-cover [&_canvas]:hidden" />
+      <div
+        ref={containerRef}
+        className="absolute inset-0 [&_video]:h-full [&_video]:w-full [&_video]:object-cover [&_canvas]:hidden"
+      />
 
-      {/* Cinematic overlay */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute left-1/2 top-1/2 h-56 w-72 -translate-x-1/2 -translate-y-1/2 [box-shadow:0_0_0_9999px_rgba(0,0,0,0.55)] rounded-2xl">
+        <div className="absolute left-1/2 top-1/2 h-56 w-72 -translate-x-1/2 -translate-y-1/2 rounded-2xl [box-shadow:0_0_0_9999px_rgba(0,0,0,0.55)]">
           <Corner className="left-0 top-0" />
           <Corner className="right-0 top-0 rotate-90" />
           <Corner className="right-0 bottom-0 rotate-180" />
           <Corner className="left-0 bottom-0 -rotate-90" />
-          {!manual && (
+          {!manual && running && (
             <motion.div
               animate={{ y: ['-90%', '90%', '-90%'] }}
               transition={{ duration: 2.4, ease: 'easeInOut', repeat: Infinity }}
@@ -50,7 +55,6 @@ export function Scanner({ open, onClose, onCode }) {
         </div>
       </div>
 
-      {/* Top bar */}
       <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4 pt-[max(env(safe-area-inset-top),16px)]">
         <button
           onClick={onClose}
@@ -68,7 +72,6 @@ export function Scanner({ open, onClose, onCode }) {
         </button>
       </div>
 
-      {/* Bottom hint / manual entry */}
       <div className="absolute inset-x-0 bottom-0 p-6 pb-[max(env(safe-area-inset-bottom),24px)]">
         {manual ? (
           <form
@@ -95,9 +98,20 @@ export function Scanner({ open, onClose, onCode }) {
             </button>
           </form>
         ) : (
-          <p className="mx-auto max-w-xs text-center text-sm text-bone/70">
-            Point at a barcode. We’ll do the rest.
-          </p>
+          <div className="mx-auto max-w-xs text-center text-xs text-bone/60">
+            <p className="text-sm text-bone/80">
+              {error
+                ? 'Camera unavailable.'
+                : !running
+                ? 'Starting camera…'
+                : 'Point at a barcode. We’ll do the rest.'}
+            </p>
+            <p className="mt-1 font-mono text-[10px] text-bone/40">
+              {engine === 'native' && 'native detector'}
+              {engine === 'quagga' && 'quagga fallback'}
+              {lastSeen && <> · saw {lastSeen}</>}
+            </p>
+          </div>
         )}
       </div>
     </div>
@@ -108,7 +122,7 @@ function Corner({ className = '' }) {
   return (
     <span
       aria-hidden
-      className={`absolute h-5 w-5 border-amber ${className} border-l-2 border-t-2`}
+      className={`absolute h-5 w-5 border-l-2 border-t-2 border-amber ${className}`}
       style={{ borderTopLeftRadius: 6 }}
     />
   );
