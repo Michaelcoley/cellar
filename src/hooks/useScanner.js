@@ -7,8 +7,17 @@ import Quagga from 'quagga';
 
 export function useScanner({ targetRef, enabled, onDetected }) {
   const lastCodeRef = useRef({ code: null, at: 0 });
+  const onDetectedRef = useRef(onDetected);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
+
+  // Keep the latest callback in a ref so the init effect doesn't depend on
+  // identity-unstable closures from the parent. Without this, every parent
+  // re-render tore down and re-initialised Quagga, which manifested as a
+  // rapidly blinking camera feed.
+  useEffect(() => {
+    onDetectedRef.current = onDetected;
+  }, [onDetected]);
 
   useEffect(() => {
     if (!enabled || !targetRef.current) return;
@@ -51,7 +60,7 @@ export function useScanner({ targetRef, enabled, onDetected }) {
       const now = Date.now();
       if (lastCodeRef.current.code === code && now - lastCodeRef.current.at < 1500) return;
       lastCodeRef.current = { code, at: now };
-      onDetected?.(code);
+      onDetectedRef.current?.(code);
     };
 
     Quagga.onDetected(handler);
@@ -66,7 +75,7 @@ export function useScanner({ targetRef, enabled, onDetected }) {
       }
       setRunning(false);
     };
-  }, [enabled, targetRef, onDetected]);
+  }, [enabled, targetRef]);
 
   return { running, error };
 }
