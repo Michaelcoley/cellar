@@ -4,10 +4,12 @@ import { useEffect } from 'react';
 export function BottomSheet({ open, onClose, children, title }) {
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
+    // Always restore to '', not the captured previous value — racing effects
+    // (rapid open/close, StrictMode double-mount) can leave `prev` already set
+    // to 'hidden', which would permanently lock body scroll on cleanup.
     document.body.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = '';
     };
   }, [open]);
 
