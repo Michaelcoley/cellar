@@ -23,13 +23,21 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
+  // Always send Supabase the full app URL — including the subpath — so it
+  // can't strip the path back to the origin (which it does when only Site URL
+  // is configured).
+  const redirectTo =
+    typeof window !== 'undefined' ? window.location.origin + import.meta.env.BASE_URL : undefined;
+
   const value = {
     session,
     user: session?.user ?? null,
     loading,
     signInWithPassword: (email, password) => supabase.auth.signInWithPassword({ email, password }),
-    signUp: (email, password) => supabase.auth.signUp({ email, password }),
-    signInWithMagicLink: (email) => supabase.auth.signInWithOtp({ email }),
+    signUp: (email, password) =>
+      supabase.auth.signUp({ email, password, options: { emailRedirectTo: redirectTo } }),
+    signInWithMagicLink: (email) =>
+      supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } }),
     signOut: () => supabase.auth.signOut(),
   };
 
