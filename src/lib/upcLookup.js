@@ -1,13 +1,15 @@
 // Cascading UPC lookup:
 //   1. Local cache (localStorage) — instant
 //   2. Curated premium DB (bundled JSON of allocated/notable bottles)
-//   3. Open Food Facts — anonymous, no key
-//   4. UPCItemDB trial endpoint — best-effort
+//   3. Edge function — server-side fan-out to Open Food Facts + UPCItemDB
+//      (browsers can't hit UPCItemDB directly because of strict CORS).
 //
 // Always returns a partial bottle suggestion the user can confirm/edit.
 // Never throws; any failure simply falls through to the next provider.
 
 import curated from './curatedDb.json';
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 const CACHE_KEY = 'cellar:upc-cache:v1';
 const CACHE_MAX = 500;
@@ -40,37 +42,16 @@ function fromCurated(upc) {
   return { ...hit, source: 'curated' };
 }
 
-async function fromOpenFoodFacts(upc) {
+async function fromEdgeFunction(upc) {
+  if (!SUPABASE_URL) return null;
   try {
-    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(upc)}.json`);
+    const r = await fetch(
+      `${SUPABASE_URL}/functions/v1/lookup-upc?upc=${encodeURIComponent(upc)}`,
+    );
     if (!r.ok) return null;
     const j = await r.json();
-    if (j.status !== 1 || !j.product) return null;
-    const p = j.product;
-    return {
-      name: p.product_name || p.generic_name || null,
-      brand: (p.brands || '').split(',')[0]?.trim() || null,
-      photo_url: p.image_front_url || p.image_url || null,
-      source: 'openfoodfacts',
-    };
-  } catch {
-    return null;
-  }
-}
-
-async function fromUpcItemDb(upc) {
-  try {
-    const r = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(upc)}`);
-    if (!r.ok) return null;
-    const j = await r.json();
-    const item = j.items?.[0];
-    if (!item) return null;
-    return {
-      name: item.title || null,
-      brand: item.brand || null,
-      photo_url: item.images?.[0] || null,
-      source: 'upcitemdb',
-    };
+    if (!j?.name) return null;
+    return j;
   } catch {
     return null;
   }
@@ -104,8 +85,7 @@ export async function lookupUpc(upc) {
   if (cache[upc]) return { ...cache[upc], source: 'cache' };
 
   let suggestion = fromCurated(upc);
-  if (!suggestion) suggestion = await fromOpenFoodFacts(upc);
-  if (!suggestion) suggestion = await fromUpcItemDb(upc);
+  if (!suggestion) suggestion = await fromEdgeFunction(upc);
 
   if (!suggestion) return null;
 
