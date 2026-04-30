@@ -1,7 +1,9 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { useEffect } from 'react';
 
 export function BottomSheet({ open, onClose, children, title }) {
+  const dragControls = useDragControls();
+
   useEffect(() => {
     if (!open) return;
     // Always restore to '', not the captured previous value — racing effects
@@ -30,18 +32,27 @@ export function BottomSheet({ open, onClose, children, title }) {
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
             drag="y"
+            dragControls={dragControls}
+            dragListener={false}
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.4 }}
             onDragEnd={(_, info) => {
               if (info.offset.y > 120 || info.velocity.y > 600) onClose?.();
             }}
-            className="fixed inset-x-0 bottom-0 z-50 max-h-[92vh] overflow-y-auto rounded-t-sheet bg-ink-900 pb-[max(env(safe-area-inset-bottom),16px)] shadow-card"
+            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92vh] flex-col rounded-t-sheet bg-ink-900 shadow-card"
           >
-            <div className="sticky top-0 z-10 flex flex-col items-center gap-2 bg-ink-900/95 pb-3 pt-3 backdrop-blur">
+            {/* Drag handle — only this initiates the dismiss gesture, so the
+                content area below scrolls normally on iOS. */}
+            <div
+              onPointerDown={(e) => dragControls.start(e)}
+              className="flex shrink-0 cursor-grab touch-none flex-col items-center gap-2 bg-ink-900 pb-3 pt-3"
+            >
               <div className="h-1.5 w-12 rounded-full bg-ink-600" />
               {title && <h2 className="font-display text-xl">{title}</h2>}
             </div>
-            <div className="px-5">{children}</div>
+            <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(env(safe-area-inset-bottom),16px)] [-webkit-overflow-scrolling:touch]">
+              {children}
+            </div>
           </motion.div>
         </>
       )}
